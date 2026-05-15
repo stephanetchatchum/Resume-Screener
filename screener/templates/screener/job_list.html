@@ -1,0 +1,21 @@
+{% extends 'screener/base.html' %}
+
+{% block content %}
+<h1>Job Positions</h1>
+<a href="/job/create/" class="btn">+ Create New Job</a>
+
+<br><br>
+
+{% if jobs %}
+    {% for job in jobs %}
+        <div class="card">
+            <h2>{{ job.title }}</h2>
+            <p>{{ job.description|truncatewords:30 }}</p>
+            <p>Candidates: {{ job.candidates.count }}</p>
+            <a href="/job/{{ job.id }}/" class="btn">View Candidates</a>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No jobs created yet. Create your first job above.</p>
+{% endif %}
+{% endblock %}

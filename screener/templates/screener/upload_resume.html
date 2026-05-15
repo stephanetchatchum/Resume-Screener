@@ -1,0 +1,24 @@
+{% extends 'screener/base.html' %}
+
+{% block content %}
+<h1>Upload Resume</h1>
+<h2>Position: {{ job.title }}</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <label>Candidate Name</label>
+    <input type="text" name="name" placeholder="Full name" required>
+
+    <label>Candidate Email</label>
+    <input type="email" name="email" placeholder="email@example.com" required>
+
+    <label>Resume (PDF or DOCX)</label>
+    <input type="file" name="resume" accept=".pdf,.docx" required>
+
+    <button type="submit" class="btn">Screen Candidate</button>
+</form>
+
+<br>
+<a href="/job/{{ job.id }}/">← Back to candidates</a>
+{% endblock %}

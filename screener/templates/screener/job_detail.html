@@ -1,0 +1,29 @@
+{% extends 'screener/base.html' %}
+
+{% block content %}
+<h1>{{ job.title }}</h1>
+<p>{{ job.description|truncatewords:50 }}</p>
+
+<a href="/job/{{ job.id }}/upload/" class="btn btn-green">+ Upload Resume</a>
+
+<br><br>
+
+<h2>Candidates ({{ candidates|length }})</h2>
+
+{% if candidates %}
+    {% for candidate in candidates %}
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3>{{ candidate.name }}</h3>
+                    <p>{{ candidate.email }}</p>
+                    <p>{{ candidate.summary }}</p>
+                </div>
+                <div class="score">{{ candidate.score }}/100</div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No candidates yet. Upload the first resume above.</p>
+{% endif %}
+{% endblock %}

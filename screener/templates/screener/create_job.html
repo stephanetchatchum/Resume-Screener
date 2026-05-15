@@ -1,0 +1,16 @@
+{% extends 'screener/base.html' %}
+
+{% block content %}
+<h1>Create New Job</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <label>Job Title</label>
+    <input type="text" name="title" placeholder="e.g. Software Engineer" required>
+
+    <label>Job Description</label>
+    <textarea name="description" rows="10" placeholder="Paste the full job description here..." required></textarea>
+
+    <button type="submit" class="btn">Create Job</button>
+</form>
+{% endblock %}
