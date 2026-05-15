@@ -65,7 +65,7 @@ def parse_ai_response(response_text):
     result = {"summary": "", "score": 0, "strengths": "", "gaps": ""}
     for line in lines:
         if line.startswith("SUMMARY:"):
-            result["summary"] = line.replace("SUMMARY:" "").strip()
+            result["summary"] = line.replace("SUMMARY:", "").strip()
         elif line.startswith("SCORE:"):
             try:
                 result["score"] = float(line.replace("SCORE:", "").strip())
