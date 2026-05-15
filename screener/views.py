@@ -26,7 +26,7 @@ def extract_text_from_docx(file):
 #AI analyzer
 def analyze_candidate(resume_text, job_description):
     response = client.chat.completions.create(
-        model="llama3-8b-8192"
+        model="llama3-8b-8192",
         messages=[
             {
                 "role": "system",
@@ -59,6 +59,7 @@ def analyze_candidate(resume_text, job_description):
     )
     return response.choices[0].message.content
 
+#response parser
 def parse_ai_response(response_text):
     lines = response_text.strip().split('\n')
     result = {"summary": "", "score": 0, "strengths": "", "gaps": ""}
@@ -76,9 +77,51 @@ def parse_ai_response(response_text):
             result["gaps"] = line.replace("GAPS:", "").strip()
     return result
 
+#views
 def job_list(request):
     jobs = Job.objects.all().order_by('-created_at')
     return render(request, 'screener/job_list.html', {'jobs': jobs})
 
+def create_job(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        description = request.POST['description']
+        Job.objects.create(title=title, description=description)
+        messages.success(request, 'Job created successfully.')
+        return redirect('job_list')
+    return render(request, 'screener/create_job.html')
 
+def job_detail(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    candidates = job.candidates.all().order_by('-score')
+    return render(request, 'screener/job_detail.html', {'job': job, 'candidates': candidates})
+
+def upload_resume(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    if request.method == 'POST':
+        name = request.POST['name']
+        email = request.POST['email']
+        resume_file = request.FILES['resume']
+
+        if resume_file.name.endswith('.pdf'):
+            resume_text = extract_text_from_pdf(resume_file)
+        elif resume_file.name.endswith('.docx'):
+            resume_text = extract_text_from_docx(resume_file)
+        else:
+            messages.error(request, 'Please upload a pdf or DOCX file.')
+            return redirect('upload_resume', job_id=job_id)
         
+        ai_response = analyze_candidate(resume_text, job.description)
+        parsed = parse_ai_response(ai_response)
+
+        Candidate.objects.create(
+            job=job,
+            name=name,
+            email=email,
+            resume_text=resume_text,
+            summary=parsed['summary'],
+            score=parsed['score']
+        )
+        messages.success(request, f'{name} has been screened and added.')
+        return redirect('job_detail', job_id=job_id)
+    return render(request, 'screener/upload_resume.html', {'job': job})
