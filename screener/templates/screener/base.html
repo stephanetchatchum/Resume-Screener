@@ -3,9 +3,9 @@
     <head>
         <title>Resume Screener</title>
         <style>
-            body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px}
-            nav { margin-bottom: 30px; }
-            nav a { margin-right: 15px; text-decoration: none; color: #073763; font-weight: bold; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; }
+            nav {background: #0159D1; padding: 40px 40px; margin-bottom: 0; margin-top: 50; display: flex; align-items: center;}
+            nav a { margin-right: 15px; text-decoration: none; color: #f9f9f9; font-weight: bold; }
             .btn { background: #073763; color: white; padding: 8px 16px; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
             .btn-green { background: #2e7d32; }
             .card { border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 4px; }
@@ -17,9 +17,11 @@
     </head>
     <body>
         <nav>
+            <span style="color: white; font-size: 50px; font-weight: 700; margin-right: auto;">TalentScreen </span>
             <a href="/">All Jobs</a>
             <a href="/job/create/">+ New Job</a>
         </nav>
+        <div style="max-width: 1700px; margin: 40px auto; padding: 0 20px;">
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -28,5 +30,6 @@
             </div>
         {% endif %}
         {% block content %}{% endblock %}
+        </div>
     </body>
 </html>
