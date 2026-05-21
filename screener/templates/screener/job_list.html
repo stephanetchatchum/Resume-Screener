@@ -1,10 +1,12 @@
 {% extends 'screener/base.html' %}
 
 {% block content %}
-<h1>Job Positions</h1>
-<a href="/job/create/" class="btn">+ Create New Job</a>
+<div>
+    <h1>Job Positions</h1>
+    <a href="/job/create/" class="btn">+ Create New Job</a>
+</div>
 
-<br><br>
+<br>
 
 {% if jobs %}
     {% for job in jobs %}

@@ -4,24 +4,32 @@
         <title>Resume Screener</title>
         <style>
             body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; }
-            nav {background: #0159D1; padding: 40px 40px; margin-bottom: 0; margin-top: 50; display: flex; align-items: center;}
+            nav {background: #0159D1; padding: 20px 40px; margin-bottom: 0; margin-top: 0; display: flex; align-items: center;}
             nav a { margin-right: 15px; text-decoration: none; color: #f9f9f9; font-weight: bold; }
-            .btn { background: #073763; color: white; padding: 8px 16px; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
+            .btn { background: #073763; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; }
             .btn-green { background: #2e7d32; }
-            .card { border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 4px; }
+            .card { background: white; border: none; padding: 20px; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);}
             .score { font-size: 24px; font-weight: bold; color: #073763; }
             .messages { background: #e8f5e9; padding: 10px; margin-bottom: 20px; border-left: 4px solid #2e7d32; }
             input, textarea { width: 100%; padding: 8px; margin-bottom: 15px; box-sizing: border-box; border: 1px solid #ddd; }
             label { display: block; margin-bottom: 5px; font-weight: bold; }
+            nav input { width: auto; margin-bottom: 0; }
+            nav label { display: none; }
+            #search-btn { background: #ffffff; color: white; padding: 10px 10px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block;}
         </style>
     </head>
     <body>
         <nav>
-            <span style="color: white; font-size: 50px; font-weight: 700; margin-right: auto;">TalentScreen </span>
+            <span style="color: white; font-size: 25px; font-weight: 700; margin-right: auto;">TalentScreen </span>
             <a href="/">All Jobs</a>
             <a href="/job/create/">+ New Job</a>
+            <form action="/search" method="get">
+                <label for="site-search">Search Job</label>
+                <input type="search" id="site-search" name="q" placeholder="Search Job...">
+                <button id="search-btn" type="submit">🔎</button>
+            </form>
         </nav>
-        <div style="max-width: 1700px; margin: 40px auto; padding: 0 20px;">
+        <div style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
