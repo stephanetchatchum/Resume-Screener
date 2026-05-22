@@ -7,6 +7,13 @@
 <a href="/job/{{ job.id }}/upload/" class="btn btn-green">+ Upload Resume</a>
 
 <br><br>
+<form method="get">
+    <input type="search" name="q" placeholder="Search candidates..." value="{{ query }}" style="width: 300px; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+    <button type="submit" class="btn">Search</button>
+</form>
+{% if query %}
+    <p>Showing results for: <strong>{{ query }}</strong></p>
+{% endif %}
 
 <h2>Candidates ({{ candidates|length }})</h2>
 

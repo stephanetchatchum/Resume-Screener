@@ -97,7 +97,11 @@ def create_job(request):
 
 def job_detail(request, job_id):
     job = get_object_or_404(Job, id=job_id)
-    candidates = job.candidates.all().order_by('-score')
+    query = request.GET.get('q', '')
+    if query:
+        candidates = job.candidates.filter(name__icontains=query).order_by('-score')
+    else:
+        candidates = job.candidates.all().order_by('-score')
     return render(request, 'screener/job_detail.html', {'job': job, 'candidates': candidates})
 
 def upload_resume(request, job_id):
