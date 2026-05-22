@@ -79,7 +79,11 @@ def parse_ai_response(response_text):
 
 #views
 def job_list(request):
-    jobs = Job.objects.all().order_by('-created_at')
+    query = request.GET.get('q', '')
+    if query:
+        jobs = Job.objects.filter(title__icontains=query).order_by('-created_at')
+    else:
+        jobs = Job.objects.all().order_by('-created_at')
     return render(request, 'screener/job_list.html', {'jobs': jobs})
 
 def create_job(request):

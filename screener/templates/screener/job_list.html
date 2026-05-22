@@ -1,6 +1,9 @@
 {% extends 'screener/base.html' %}
 
 {% block content %}
+{% if query %}
+    <p>Showing results for: <strong>{{ query }}</strong></p>
+{% endif %}
 <div>
     <h1>Job Positions</h1>
     <a href="/job/create/" class="btn">+ Create New Job</a>
