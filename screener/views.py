@@ -2,6 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Job, Candidate
 from groq import Groq
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
+import base64
+import json
 import PyPDF2
 import docx
 import io
@@ -105,6 +110,7 @@ def job_detail(request, job_id):
     return render(request, 'screener/job_detail.html', {'job': job, 'candidates': candidates})
 
 def upload_resume(request, job_id):
+
     job = get_object_or_404(Job, id=job_id)
     if request.method == 'POST':
         name = request.POST['name']
@@ -133,3 +139,27 @@ def upload_resume(request, job_id):
         messages.success(request, f'{name} has been screened and added.')
         return redirect('job_detail', job_id=job_id)
     return render(request, 'screener/upload_resume.html', {'job': job})
+
+#Gmail intergratrion
+
+SCOPES = ['HTTPS://www.googleapis.com/auth/gmail.readonly']#asking readonly perms from goodle
+
+CREDENTIALS_FILE = 'credentials.json'
+
+def gmail_auth(request):
+    flow = Flow.from_client_secrets_file(
+        CREDENTIALS_FILE,
+        scopes=SCOPES,
+        redirect_uri='http://localhost:8000/oauth2callback/'
+    )
+
+    auth_url, state = flow.authorization_url(prompt='consent')
+
+    request.session['state'] = state
+
+    return redirect(auth_url)
+
+def oauth2callback(request):
+    state = request.session['state']
+
+    
