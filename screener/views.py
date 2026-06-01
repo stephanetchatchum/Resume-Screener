@@ -162,4 +162,25 @@ def gmail_auth(request):
 def oauth2callback(request):
     state = request.session['state']
 
-    
+    flow = Flow.from_client_config(
+        CREDENTIALS_FILE,
+        scopes=SCOPES,
+        state=state,
+        redirect_uri='http://localhost:8000/oauth2callback/'
+    )
+
+    flow.fetch_token(authorization_response=request.build_absolute_uri())
+
+    Credentials = flow.credentials
+
+    request.session['gmail_credentials'] = {
+        'token': Credentials.token,
+        'refresh_token': Credentials.refresh_token,
+        'tonken_uri': Credentials.token_uri,
+        'client_id': Credentials.client_id,
+        'client_secret': Credentials.client_secret,
+        'scopes': Credentials.scopes
+    }
+
+    return redirect('gmail_scan')
+
