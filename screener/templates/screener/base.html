@@ -15,7 +15,6 @@
             label { display: block; margin-bottom: 5px; font-weight: bold; }
             nav input { width: auto; margin-bottom: 0; }
             nav label { display: none; }
-            #search-btn { background: #ffffff; color: white; padding: 10px 10px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block;}
         </style>
     </head>
     <body>
@@ -25,8 +24,8 @@
             <a href="/job/create/">+ New Job</a>
             <form action="/" method="get">
                 <label for="site-search">Search Job</label>
-                <input type="search" id="site-search" name="q" placeholder="Search Job...">
-                <button id="search-btn" type="submit">🔎</button>
+                <input type="search" id="site-search" name="q" placeholder="Search Job..." style="width: 200px; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                <button class="btn" type="submit">Search</button>
             </form>
         </nav>
         <div style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
