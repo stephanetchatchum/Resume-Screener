@@ -1,4 +1,4 @@
-# Resume Screener
+# TalentScreener
 
 A simple Django-based candidate screening app that lets you create job postings, upload resumes in PDF or DOCX format, and score candidates automatically using Groq AI.
 
