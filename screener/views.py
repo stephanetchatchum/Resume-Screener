@@ -184,3 +184,4 @@ def oauth2callback(request):
 
     return redirect('gmail_scan')
 
+
