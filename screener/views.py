@@ -140,6 +140,16 @@ def upload_resume(request, job_id):
         return redirect('job_detail', job_id=job_id)
     return render(request, 'screener/upload_resume.html', {'job': job})
 
+def delete_job(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    
+    if request.method == 'POST':
+        job.delete()
+        messages.success(request, f'"{job.title}" has been deleted.')
+        return redirect('job_list')
+    
+    return redirect('job_list')
+
 #Gmail intergratrion
 
 SCOPES = ['HTTPS://www.googleapis.com/auth/gmail.readonly']#asking readonly perms from goodle
@@ -184,4 +194,41 @@ def oauth2callback(request):
 
     return redirect('gmail_scan')
 
+def gmail_scan(request, job_id):
+    if 'gmail_credentials' not in request.session:
+        return redirect('gmail_auth')
+    
+    job = get_object_or_404(Job, id=job_id)
 
+    creds = Credentials(**request.session['gmail_credentials'])
+
+    service = build('gmail', 'v1', credentials=creds)
+
+    results = service.user().messages().list(
+        userId='me',
+        q='has:attachment filename:pdf OR filename:docx',
+        maxResults=20
+    ).execute()
+
+    messages_list = results.get('messages', [])
+    screened = 0
+
+    for msg in messages_list:
+        message = service.users().messages().get(
+            userId='me', id=msg['id']
+        ).execute()
+
+        sender = ''
+        for header in messages['payload']['headers']:
+            if header['name'] == 'From':
+                sender = header['value']
+
+        parts = message['payload'].get('parts', [])
+
+        for part in parts:
+            if part['filename'] and (part['filename'].endswith('.pdf') or part['filename'].endswith('.docx')):
+                attachment_id = part['body']['attachmentId']
+
+                attachment = service.users().messages().attachments().get(
+
+                ).execute()
