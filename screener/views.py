@@ -107,7 +107,7 @@ def job_detail(request, job_id):
         candidates = job.candidates.filter(name__icontains=query).order_by('-score')
     else:
         candidates = job.candidates.all().order_by('-score')
-    return render(request, 'screener/job_detail.html', {'job': job, 'candidates': candidates})
+    return render(request, 'screener/job_detail.html', {'job': job, 'candidates': candidates, 'query': query})
 
 def upload_resume(request, job_id):
 
@@ -156,7 +156,10 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']#asking readonly perm
 
 CREDENTIALS_FILE = 'credentials.json'
 
-def gmail_auth(request):
+def gmail_auth(request, job_id):
+
+    request.session['scanning_job_id'] = job_id
+
     flow = Flow.from_client_secrets_file(
         CREDENTIALS_FILE,
         scopes=SCOPES,
@@ -192,11 +195,12 @@ def oauth2callback(request):
         'scopes': credentials.scopes
     }
 
-    return redirect('gmail_scan')
+    job_id = request.session.get('scanning_job_id')
+    return redirect('gmail_scan', job_id=job_id)
 
 def gmail_scan(request, job_id):
     if 'gmail_credentials' not in request.session:
-        return redirect('gmail_auth')
+        return redirect('gmail_auth', job_id=job_id)
     
     job = get_object_or_404(Job, id=job_id)
 
