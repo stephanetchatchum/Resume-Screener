@@ -152,7 +152,7 @@ def delete_job(request, job_id):
 
 #Gmail intergratrion
 
-SCOPES = ['HTTPS://www.googleapis.com/auth/gmail.readonly']#asking readonly perms from goodle
+SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']#asking readonly perms from goodle
 
 CREDENTIALS_FILE = 'credentials.json'
 
@@ -172,7 +172,7 @@ def gmail_auth(request):
 def oauth2callback(request):
     state = request.session['state']
 
-    flow = Flow.from_client_config(
+    flow = Flow.from_client_secrets_file(
         CREDENTIALS_FILE,
         scopes=SCOPES,
         state=state,
@@ -181,15 +181,15 @@ def oauth2callback(request):
 
     flow.fetch_token(authorization_response=request.build_absolute_uri())
 
-    Credentials = flow.credentials
+    credentials = flow.credentials
 
     request.session['gmail_credentials'] = {
-        'token': Credentials.token,
-        'refresh_token': Credentials.refresh_token,
-        'tonken_uri': Credentials.token_uri,
-        'client_id': Credentials.client_id,
-        'client_secret': Credentials.client_secret,
-        'scopes': Credentials.scopes
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
     }
 
     return redirect('gmail_scan')
@@ -204,7 +204,7 @@ def gmail_scan(request, job_id):
 
     service = build('gmail', 'v1', credentials=creds)
 
-    results = service.user().messages().list(
+    results = service.users().messages().list(
         userId='me',
         q='has:attachment filename:pdf OR filename:docx',
         maxResults=20
@@ -219,7 +219,7 @@ def gmail_scan(request, job_id):
         ).execute()
 
         sender = ''
-        for header in messages['payload']['headers']:
+        for header in message['payload']['headers']:
             if header['name'] == 'From':
                 sender = header['value']
 
@@ -230,7 +230,9 @@ def gmail_scan(request, job_id):
                 attachment_id = part['body']['attachmentId']
 
                 attachment = service.users().messages().attachments().get(
-
+                    userId='me',
+                    messageId=msg['id'],
+                    id=attachment_id
                 ).execute()
 
                 file_data = base64.urlsafe_b64decode(attachment['data'])
