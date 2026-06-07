@@ -232,3 +232,27 @@ def gmail_scan(request, job_id):
                 attachment = service.users().messages().attachments().get(
 
                 ).execute()
+
+                file_data = base64.urlsafe_b64decode(attachment['data'])
+
+                if part['filename'].endswith('.pdf'):
+                    resume_text = extract_text_from_pdf(io.BytesIO(file_data))
+                else:
+                    resume_text = extract_text_from_docx(io.BytesIO(file_data))
+
+                if resume_text:
+                    ai_response = analyze_candidate(resume_text, job.description)
+                    parsed = parse_ai_response(ai_response)
+
+                    Candidate.objects.create(
+                        job=job,
+                        name=sender,
+                        email=sender,
+                        resume_text=resume_text,
+                        summary=parsed['summary'],
+                        score=parsed['score']
+                    )
+                    screened += 1
+
+    messages.success(request, f'Scanned Gmail inbox. {screened} candidates screened.')
+    return redirect('job_detail', job_id=job_id)
