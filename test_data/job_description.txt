@@ -1,0 +1,12 @@
+Senior Backend Engineer - Irembo
+
+Requirements:
+- 3+ years Python (Django or Flask)
+- PostgreSQL and database design
+- RESTful API development
+- Cloud infrastructure (AWS preferred)
+- CI/CD and DevOps practices
+
+Nice to have:
+- GovTech experience
+- Docker and Kubernetes
