@@ -117,30 +117,29 @@ def job_detail(request, job_id):
     return render(request, 'screener/job_detail.html', {'job': job, 'candidates': candidates, 'query': query})
 
 def upload_resume(request, job_id):
-
     job = get_object_or_404(Job, id=job_id)
     if request.method == 'POST':
-        resume_file = request.FILES['resume']
-        if resume_file.name.endswith('.pdf'):
-            resume_text = extract_text_from_pdf(resume_file)
-        elif resume_file.name.endswith('.docx'):
-            resume_text = extract_text_from_docx(resume_file)
-        else:
-            messages.error(request, 'Please upload a pdf or DOCX file.')
-            return redirect('upload_resume', job_id=job_id)
-        
-        ai_response = analyze_candidate(resume_text, job.description)
-        parsed = parse_ai_response(ai_response)
-
-        Candidate.objects.create(
-            job=job,
-            name=parsed['name'],
-            email=parsed['email'],
-            resume_text=resume_text,
-            summary=parsed['summary'],
-            score=parsed['score']
-        )
-        messages.success(request, f'{parsed['name']} has been screened and added.')
+        resume_files = request.FILES.getlist('resume')
+        screened = 0
+        for resume_file in resume_files:
+            if resume_file.name.endswith('.pdf'):
+                resume_text = extract_text_from_pdf(resume_file)
+            elif resume_file.name.endswith('.docx'):
+                resume_text = extract_text_from_docx(resume_file)
+            else:
+                continue
+            ai_response = analyze_candidate(resume_text, job.description)
+            parsed = parse_ai_response(ai_response)
+            Candidate.objects.create(
+                job=job,
+                name=parsed['name'],
+                email=parsed['email'],
+                resume_text=resume_text,
+                summary=parsed['summary'],
+                score=parsed['score']
+            )
+            screened += 1
+        messages.success(request, f'{screened} candidates screened and added.')
         return redirect('job_detail', job_id=job_id)
     return render(request, 'screener/upload_resume.html', {'job': job})
 

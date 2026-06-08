@@ -4,7 +4,7 @@
 <h1>{{ job.title }}</h1>
 <p>{{ job.description|truncatewords:50 }}</p>
 
-<a href="/job/{{ job.id }}/upload/" class="btn btn-green">+ Upload Resume</a>
+<a href="/job/{{ job.id }}/upload/" class="btn btn-green">+ Upload Resume(s)</a>
 <a href="/job/{{ job.id }}/gmail-auth/" class="btn" style="margin-left: 10px;">Scan Gmail</a>
 <br><br>
 <form method="get">
@@ -31,6 +31,6 @@
         </div>
     {% endfor %}
 {% else %}
-    <p>No candidates yet. Upload the first resume above.</p>
+    <p>No candidates yet. Upload the resume(s) above.</p>
 {% endif %}
 {% endblock %}

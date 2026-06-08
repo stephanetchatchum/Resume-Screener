@@ -1,16 +1,16 @@
 {% extends 'screener/base.html' %}
 
 {% block content %}
-<h1>Upload Resume</h1>
+<h1>Upload Resume(s)</h1>
 <h2>Position: {{ job.title }}</h2>
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <label>Resume (PDF or DOCX)</label>
+    <label>Resume(s) (PDF or DOCX)</label>
     <input type="file" name="resume" accept=".pdf,.docx" required multiple>
 
-    <button type="submit" class="btn">Screen Candidate</button>
+    <button type="submit" class="btn">Screen Candidate(s)</button>
 </form>
 
 <br>
