@@ -13,6 +13,7 @@ import io
 import os
 from dotenv import load_dotenv
 
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 load_dotenv()
 client = Groq()
 
@@ -173,7 +174,7 @@ def gmail_auth(request, job_id):
     return redirect(auth_url)
 
 def oauth2callback(request):
-    state = request.session['state']
+    state = request.GET['state']
 
     flow = Flow.from_client_secrets_file(
         CREDENTIALS_FILE,
