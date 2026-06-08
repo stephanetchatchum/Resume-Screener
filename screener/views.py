@@ -55,6 +55,8 @@ def analyze_candidate(resume_text, job_description):
                 4. Key gaps
 
                 Format your response as:
+                NAME: [candidate full name]
+                EMAIL: [candidate email address]
                 SUMMARY: [summary]
                 SCORE: [number only]
                 STRENGTHS: [strengths]
@@ -68,9 +70,13 @@ def analyze_candidate(resume_text, job_description):
 #response parser
 def parse_ai_response(response_text):
     lines = response_text.strip().split('\n')
-    result = {"summary": "", "score": 0, "strengths": "", "gaps": ""}
+    result = {"name": "Unknown", "email": "", "summary": "", "score": 0, "strengths": "", "gaps": ""}
     for line in lines:
-        if line.startswith("SUMMARY:"):
+        if line.startswith("NAME:"):
+            result["name"] = line.replace("NAME:", "").strip()
+        elif line.startswith("EMAIL:"):
+            result["email"] = line.replace("EMAIL:", "").strip()
+        elif line.startswith("SUMMARY:"):
             result["summary"] = line.replace("SUMMARY:", "").strip()
         elif line.startswith("SCORE:"):
             try:
@@ -114,10 +120,7 @@ def upload_resume(request, job_id):
 
     job = get_object_or_404(Job, id=job_id)
     if request.method == 'POST':
-        name = request.POST['name']
-        email = request.POST['email']
         resume_file = request.FILES['resume']
-
         if resume_file.name.endswith('.pdf'):
             resume_text = extract_text_from_pdf(resume_file)
         elif resume_file.name.endswith('.docx'):
@@ -131,13 +134,13 @@ def upload_resume(request, job_id):
 
         Candidate.objects.create(
             job=job,
-            name=name,
-            email=email,
+            name=parsed['name'],
+            email=parsed['email'],
             resume_text=resume_text,
             summary=parsed['summary'],
             score=parsed['score']
         )
-        messages.success(request, f'{name} has been screened and added.')
+        messages.success(request, f'{parsed['name']} has been screened and added.')
         return redirect('job_detail', job_id=job_id)
     return render(request, 'screener/upload_resume.html', {'job': job})
 
