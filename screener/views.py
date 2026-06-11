@@ -11,12 +11,18 @@ import PyPDF2
 import docx
 import io
 import os
+import re
 from dotenv import load_dotenv
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 load_dotenv()
 client = Groq()
 
+#security REGEX:
+def anonymize_resume(text):
+    text = re.sub(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[EMAIL]', text)
+    text = re.sub(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', '[PHONE]', text)
+    return text
 #text Extractor
 def extract_text_from_pdf(file):
     reader = PyPDF2.PdfReader(file)
@@ -128,13 +134,15 @@ def upload_resume(request, job_id):
                 resume_text = extract_text_from_docx(resume_file)
             else:
                 continue
-            ai_response = analyze_candidate(resume_text, job.description)
+
+            clean_text = anonymize_resume(resume_text)
+            ai_response = analyze_candidate(clean_text, job.description)
             parsed = parse_ai_response(ai_response)
             Candidate.objects.create(
                 job=job,
                 name=parsed['name'],
                 email=parsed['email'],
-                resume_text=resume_text,
+                resume_text=clean_text,
                 summary=parsed['summary'],
                 score=parsed['score']
             )
@@ -250,14 +258,15 @@ def gmail_scan(request, job_id):
                     resume_text = extract_text_from_docx(io.BytesIO(file_data))
 
                 if resume_text:
-                    ai_response = analyze_candidate(resume_text, job.description)
+                    clean_text = anonymize_resume(resume_text)
+                    ai_response = analyze_candidate(clean_text, job.description)
                     parsed = parse_ai_response(ai_response)
 
                     Candidate.objects.create(
                         job=job,
                         name=sender,
                         email=sender,
-                        resume_text=resume_text,
+                        resume_text=clean_text,
                         summary=parsed['summary'],
                         score=parsed['score']
                     )
