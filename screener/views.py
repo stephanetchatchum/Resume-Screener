@@ -172,7 +172,7 @@ def get_credentials_file():
     creds_json = os.environ.get('GOOGLE_CREDENTIALS_JSON')
     if not creds_json:
         raise ValueError('GOOGLE_CREDENTIALS_JSON environment variable not set')
-    tmp = tempfile.NameTemporaryFile(
+    tmp = tempfile.NamedTemporaryFile(
         mode='w', suffix='.json', delete=False
     )
     tmp.write(creds_json)
@@ -208,7 +208,7 @@ def oauth2callback(request):
         get_credentials_file(),
         scopes=SCOPES,
         state=state,
-        redirect_uri='http://localhost:8000/oauth2callback/'
+        redirect_uri=request.build_absolute_uri('/oauth2callback/')
     )
 
     auth_response = request.build_absolute_uri()
