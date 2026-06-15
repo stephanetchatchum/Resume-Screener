@@ -174,7 +174,7 @@ def gmail_auth(request, job_id):
     flow = Flow.from_client_secrets_file(
         CREDENTIALS_FILE,
         scopes=SCOPES,
-        redirect_uri='http://localhost:8000/oauth2callback/'
+        redirect_uri=request.build_absolute_uri('/oauth2callback/')
     )
 
     auth_url, state = flow.authorization_url(
@@ -187,8 +187,11 @@ def gmail_auth(request, job_id):
     return redirect(auth_url)
 
 def oauth2callback(request):
-    state = request.GET['state']
-
+    state = request.GET.get('state')
+    if not state:
+        messages.error(request, 'Authentication failed- please try again')
+        return redirect('job_list')
+    
     flow = Flow.from_client_secrets_file(
         CREDENTIALS_FILE,
         scopes=SCOPES,
@@ -200,7 +203,7 @@ def oauth2callback(request):
     if not request.is_secure() and 'localhost' not in auth_response:
         auth_response = auth_response.replace('http://', 'https://')
 
-    flow.fetch_token(authorization_response=request.build_absolute_uri())
+    flow.fetch_token(authorization_response=auth_response)
 
     credentials = flow.credentials
 
