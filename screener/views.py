@@ -13,6 +13,7 @@ import docx
 import io
 import os
 import re
+import hashlib
 from dotenv import load_dotenv
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -166,6 +167,17 @@ def delete_job(request, job_id):
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']#asking readonly perms from goodle
 
+
+def generate_pkce_pair():
+    code_verifier = base64.urlsafe_b64encode(
+        os.urandom(32)
+    ).rstrip(b'=').decode('ascii')
+    code_challenge = base64.urlsafe_b64encode(
+        hashlib.sha256(code_verifier.encode('ascii')).digest()
+    ).rstrip(b'=').decode('ascii')
+    return code_verifier, code_challenge
+
+
 # CREDENTIALS_FILE = 'credentials.json'
 def get_credentials_file():
     """Write credentials from env var to a temp file for google_auth_oauthlib"""
@@ -183,6 +195,9 @@ def gmail_auth(request, job_id):
 
     request.session['scanning_job_id'] = job_id
 
+    code_verifier, code_challenge = generate_pkce_pair()
+    request.session['pkce_verifier'] = code_verifier
+
     flow = Flow.from_client_secrets_file(
         get_credentials_file(),
         scopes=SCOPES,
@@ -191,6 +206,8 @@ def gmail_auth(request, job_id):
 
     auth_url, state = flow.authorization_url(
         prompt='consent',
+        code_challenge=code_challenge,
+        code_challenge_method='S256'
     )
 
     request.session['state'] = state
@@ -214,7 +231,10 @@ def oauth2callback(request):
     if not request.is_secure() and 'localhost' not in auth_response:
         auth_response = auth_response.replace('http://', 'https://')
 
-    flow.fetch_token(authorization_response=auth_response)
+    flow.fetch_token(
+        authorization_response=auth_response,
+        code_verifier=request.session.get('pkce_verifier')
+    )
 
     credentials = flow.credentials
 
