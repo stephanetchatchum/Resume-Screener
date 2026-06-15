@@ -177,7 +177,10 @@ def gmail_auth(request, job_id):
         redirect_uri='http://localhost:8000/oauth2callback/'
     )
 
-    auth_url, state = flow.authorization_url(prompt='consent')
+    auth_url, state = flow.authorization_url(
+        prompt='consent',
+        code_challenge_method=False
+    )
 
     request.session['state'] = state
 
@@ -192,6 +195,10 @@ def oauth2callback(request):
         state=state,
         redirect_uri='http://localhost:8000/oauth2callback/'
     )
+
+    auth_response = request.build_absolute_uri()
+    if not request.is_secure() and 'localhost' not in auth_response:
+        auth_response = auth_response.replace('http://', 'https://')
 
     flow.fetch_token(authorization_response=request.build_absolute_uri())
 
