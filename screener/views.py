@@ -191,7 +191,6 @@ def gmail_auth(request, job_id):
 
     auth_url, state = flow.authorization_url(
         prompt='consent',
-        code_challenge_method=False
     )
 
     request.session['state'] = state
