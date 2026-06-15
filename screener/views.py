@@ -7,6 +7,7 @@ from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 import base64
 import json
+import tempfile
 import PyPDF2
 import docx
 import io
@@ -165,14 +166,25 @@ def delete_job(request, job_id):
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']#asking readonly perms from goodle
 
-CREDENTIALS_FILE = 'credentials.json'
+# CREDENTIALS_FILE = 'credentials.json'
+def get_credentials_file():
+    """Write credentials from env var to a temp file for google_auth_oauthlib"""
+    creds_json = os.environ.get('GOOGLE_CREDENTIALS_JSON')
+    if not creds_json:
+        raise ValueError('GOOGLE_CREDENTIALS_JSON environment variable not set')
+    tmp = tempfile.NameTemporaryFile(
+        mode='w', suffix='.json', delete=False
+    )
+    tmp.write(creds_json)
+    tmp.flush()
+    return tmp.name
 
 def gmail_auth(request, job_id):
 
     request.session['scanning_job_id'] = job_id
 
     flow = Flow.from_client_secrets_file(
-        CREDENTIALS_FILE,
+        get_credentials_file(),
         scopes=SCOPES,
         redirect_uri=request.build_absolute_uri('/oauth2callback/')
     )
@@ -193,7 +205,7 @@ def oauth2callback(request):
         return redirect('job_list')
     
     flow = Flow.from_client_secrets_file(
-        CREDENTIALS_FILE,
+        get_credentials_file(),
         scopes=SCOPES,
         state=state,
         redirect_uri='http://localhost:8000/oauth2callback/'
