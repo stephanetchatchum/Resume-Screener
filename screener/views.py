@@ -244,7 +244,7 @@ def oauth2callback(request):
         'token_uri': credentials.token_uri,
         'client_id': credentials.client_id,
         'client_secret': credentials.client_secret,
-        'scopes': credentials.scopes
+        'scopes': list(credentials.scopes) if credentials.scopes else []
     }
 
     job_id = request.session.get('scanning_job_id')
@@ -256,62 +256,74 @@ def gmail_scan(request, job_id):
     
     job = get_object_or_404(Job, id=job_id)
 
-    creds = Credentials(**request.session['gmail_credentials'])
+    try:
+        creds = Credentials(**request.session['gmail_credentials'])
+        service = build('gmail', 'v1', credentials=creds)
 
-    service = build('gmail', 'v1', credentials=creds)
-
-    results = service.users().messages().list(
-        userId='me',
-        q='has:attachment filename:pdf OR filename:docx',
-        maxResults=20
-    ).execute()
-
-    messages_list = results.get('messages', [])
-    screened = 0
-
-    for msg in messages_list:
-        message = service.users().messages().get(
-            userId='me', id=msg['id']
+        results = service.users().messages().list(
+            userId='me',
+            q='has:attachment filename:pdf OR filename:docx',
+            maxResults=20
         ).execute()
 
-        sender = ''
-        for header in message['payload']['headers']:
-            if header['name'] == 'From':
-                sender = header['value']
+        messages_list = results.get('messages', [])
+        screened = 0
 
-        parts = message['payload'].get('parts', [])
-
-        for part in parts:
-            if part['filename'] and (part['filename'].endswith('.pdf') or part['filename'].endswith('.docx')):
-                attachment_id = part['body']['attachmentId']
-
-                attachment = service.users().messages().attachments().get(
-                    userId='me',
-                    messageId=msg['id'],
-                    id=attachment_id
+        for msg in messages_list:
+            try:
+                message = service.users().messages().get(
+                    userId='me', id=msg['id']
                 ).execute()
 
-                file_data = base64.urlsafe_b64decode(attachment['data'])
+                sender = ''
+                for header in message['payload']['headers']:
+                    if header['name'] == 'From':
+                        sender = header['value']
 
-                if part['filename'].endswith('.pdf'):
-                    resume_text = extract_text_from_pdf(io.BytesIO(file_data))
-                else:
-                    resume_text = extract_text_from_docx(io.BytesIO(file_data))
+                parts = message['payload'].get('parts', [])
 
-                if resume_text:
-                    clean_text = anonymize_resume(resume_text)
-                    ai_response = analyze_candidate(clean_text, job.description)
-                    parsed = parse_ai_response(ai_response)
+                for part in parts:
+                    
 
-                    Candidate.objects.create(
-                        job=job,
-                        name=sender,
-                        email=sender,
-                        resume_text=clean_text,
-                        summary=parsed['summary'],
-                        score=parsed['score']
-                    )
-                    screened += 1
+                    if part['filename'] and (part['filename'].endswith('.pdf') or part['filename'].endswith('.docx')):
+                        attachment_id = part['body']['attachmentId']
 
-    messages.success(request, f'Scanned Gmail inbox. {screened} candidates screened.')
+                        attachment = service.users().messages().attachments().get(
+                            userId='me',
+                            messageId=msg['id'],
+                            id=attachment_id
+                        ).execute()
+
+                        file_data = base64.urlsafe_b64decode(attachment['data'])
+
+                        if part['filename'].endswith('.pdf'):
+                            resume_text = extract_text_from_pdf(io.BytesIO(file_data))
+                        else:
+                            resume_text = extract_text_from_docx(io.BytesIO(file_data))
+
+                        if resume_text:
+                            clean_text = anonymize_resume(resume_text)
+                            ai_response = analyze_candidate(clean_text, job.description)
+                            parsed = parse_ai_response(ai_response)
+
+                            Candidate.objects.create(
+                                job=job,
+                                name=sender,
+                                email=sender,
+                                resume_text=clean_text,
+                                summary=parsed['summary'],
+                                score=parsed['score'],
+                                strengths=parsed.get('strengths', ''),
+                                gaps=parsed.get('gaps', '')
+                            )
+                            screened += 1
+                            
+            except Exception as e:
+                continue
+            
+        messages.success(request, f'Scanned Gmail inbox. {screened} candidates screened.')
+
+    except Exception as e:
+        message.error(request, f'Gmail scan failed: {str(e)}')
+
     return redirect('job_detail', job_id=job_id)
