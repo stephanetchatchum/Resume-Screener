@@ -27,6 +27,7 @@
                     <p>{{ candidate.summary }}</p>
                 </div>
                 <div class="score">{{ candidate.score }}/100</div>
+                <a href="/job/{{ job.id }}/candidate/{{ candidate.id }}/">View Candidate details</a>
             </div>
         </div>
     {% endfor %}

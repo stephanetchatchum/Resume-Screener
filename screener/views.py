@@ -146,7 +146,9 @@ def upload_resume(request, job_id):
                 email=parsed['email'],
                 resume_text=clean_text,
                 summary=parsed['summary'],
-                score=parsed['score']
+                score=parsed['score'],
+                strengths=parsed.get('strengths', ''),
+                gaps=parsed.get('gaps', '')
             )
             screened += 1
         messages.success(request, f'{screened} candidates screened and added.')
@@ -327,3 +329,11 @@ def gmail_scan(request, job_id):
         message.error(request, f'Gmail scan failed: {str(e)}')
 
     return redirect('job_detail', job_id=job_id)
+
+
+#candidate details
+def candidate_detail(request, job_id, candidate_id):
+    job = get_object_or_404(Job, id=job_id)
+    candidate = get_object_or_404(Candidate, id=candidate_id)
+
+    return render(request, 'screener/candidate_detail.html', {'job': job, "candidate": candidate})

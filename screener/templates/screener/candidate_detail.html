@@ -1,0 +1,13 @@
+{% extends 'screener/base.html' %}
+
+{% block content %}
+    <p><strong>Name:</strong> {{ candidate.name }}</p>
+    <p><strong>Email:</strong> {{ candidate.email }}</p>
+    <p><strong>Score:</strong> {{ candidate.score }}</p>
+    <p><strong>Summary:</strong> {{ candidate.summary }}</p>
+    <p><strong>Strengths:</strong> {{ candidate.strengths }}</p>
+    <p><strong>Gaps:</strong> {{ candidate.gaps }}</p>
+
+
+    <a href="/job/{{ job.id}}/">Back to candidates</a>
+{% endblock %}

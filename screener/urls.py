@@ -10,4 +10,5 @@ urlpatterns = [
     path('job/<int:job_id>/gmail-auth/', views.gmail_auth, name='gmail_auth'),
     path('oauth2callback/', views.oauth2callback, name='oauth2callback'),
     path('job/<int:job_id>/gmail-scan/', views.gmail_scan, name='gmail_scan'),
+    path('job/<int:job_id>/candidate/<int:candidate_id>/', views.candidate_detail, name='candidate_detail'),
 ]
