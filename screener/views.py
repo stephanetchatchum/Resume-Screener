@@ -79,22 +79,35 @@ def analyze_candidate(resume_text, job_description):
 def parse_ai_response(response_text):
     lines = response_text.strip().split('\n')
     result = {"name": "Unknown", "email": "", "summary": "", "score": 0, "strengths": "", "gaps": ""}
+    current_section = None
     for line in lines:
         if line.startswith("NAME:"):
             result["name"] = line.replace("NAME:", "").strip()
+            current_section = None
         elif line.startswith("EMAIL:"):
             result["email"] = line.replace("EMAIL:", "").strip()
+            current_section = None
         elif line.startswith("SUMMARY:"):
             result["summary"] = line.replace("SUMMARY:", "").strip()
+            current_section = None
         elif line.startswith("SCORE:"):
             try:
                 result["score"] = float(line.replace("SCORE:", "").strip())
+                current_section = None
             except:
                 result["score"] = 0
+                current_section = None
         elif line.startswith("STRENGTHS:"):
             result["strengths"] = line.replace("STRENGTHS:", "").strip()
+            current_section = "strengths"
         elif line.startswith("GAPS:"):
             result["gaps"] = line.replace("GAPS:", "").strip()
+            current_section = "gaps"
+        else:
+            if current_section == "strengths":
+                result["strengths"] += " " + line.strip()
+            elif current_section == "gaps":
+                result["gaps"] += " " + line.strip()
     return result
 
 #views
