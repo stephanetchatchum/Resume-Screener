@@ -17,7 +17,6 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                 <h2>{{ job.title }}</h2>
                 <form method="get" action="/job/{{ job.id }}/edit/">
-                    {% csrf_token %}
                     <button type="submit" style="background: transparent; border: 1px solid #ccc; color: #888; padding: 8px 12px; border-radius: 6px; cursor: pointer;">
                         ✎
                     </button>
