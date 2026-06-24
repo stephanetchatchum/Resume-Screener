@@ -1,16 +1,24 @@
 {% extends 'screener/base.html' %}
 
 {% block content %}
-<h1>Create New Job</h1>
+{% if job %}
+    <h1>Edit Job</h1>
+{% else %}
+    <h1>Create New Job</h1>
+{% endif %}
 
 <form method="post">
     {% csrf_token %}
     <label>Job Title</label>
-    <input type="text" name="title" placeholder="e.g. Software Engineer" required>
+    <input type="text" name="title" value="{{ job.title }}" placeholder="e.g. Software Engineer" required>
 
     <label>Job Description</label>
-    <textarea name="description" rows="10" placeholder="Paste the full job description here..." required></textarea>
+    <textarea name="description" rows="10" placeholder="Paste the full job description here..." required>{{ job.description }}</textarea>
 
-    <button type="submit" class="btn">Create Job</button>
+    {% if job %}
+        <button type="submit" class="btn">Save Changes</button>
+    {% else %}
+        <button type="submit" class="btn">Create Job</button>
+    {% endif %}
 </form>
 {% endblock %}

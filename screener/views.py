@@ -178,6 +178,19 @@ def delete_job(request, job_id):
     
     return redirect('job_list')
 
+def edit_job(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+
+    if request.method == 'POST':
+        job.title = request.POST['title']
+        job.description = request.POST['description']
+        job.save()
+        messages.success(request, 'Job Edited successfully.')
+        return redirect('job_list')
+    return render(request, 'screener/create_job.html', {'job': job})
+
+
+
 #Gmail intergratrion
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']#asking readonly perms from goodle
