@@ -1,0 +1,15 @@
+{% extends 'screener/base.html' %}
+
+{% block content %}
+<h2>{{ job.title }}</h2>
+
+<p>You've edited the Job description! Do you want to re-screen the candidate?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn">Yes</button>
+</form>
+
+<form method="get" action="/job/{{ job.id }}/" style="display: inline;">
+    <button type="submit" class="btn">No, keep existing scores</button>
+</form>
+{% endblock %}
