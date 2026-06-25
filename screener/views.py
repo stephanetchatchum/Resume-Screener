@@ -44,7 +44,7 @@ def analyze_candidate(resume_text, job_description):
         messages=[
             {
                 "role": "system",
-                "content": "You are an expert HR assistant. Analyze resumes against job descriptions."
+                "content": "You are an expert HR assistant. When analyzing resumes, first determine the seniority level of the role from the job description. For intern or entry-level roles, weight potential, relevant coursework, eagerness to learn, and transferable skills heavily. For mid or senior roles, weight proven experience, measurable achievements, and domain expertise. Always score relative to what the role actually requires."
             },
             {
                 "role": "user",
@@ -55,7 +55,9 @@ def analyze_candidate(resume_text, job_description):
 
                 Resume:
                 {resume_text}
-
+                
+                Consider the seniority level of the role when scoring. If this is an intern or entry-level role, reward potential, relevant coursework, and eagerness. If this is a senior role, reward proven experience and measurable achievements.
+                
                 Provide:
                 1. A brief summary of the candidate (3-4 sentences)
                 2. A fit score from 0 to 100
