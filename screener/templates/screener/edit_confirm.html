@@ -3,13 +3,17 @@
 {% block content %}
 <h2>{{ job.title }}</h2>
 
+<br>
 <p>You've edited the Job description! Do you want to re-screen the candidate?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn">Yes</button>
-</form>
+<div style="padding: 50px; display: flex; justify-content: space-between;">
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-green">Yes</button>
+    </form>
 
-<form method="get" action="/job/{{ job.id }}/" style="display: inline;">
-    <button type="submit">No, keep existing scores</button>
-</form>
+    <form method="get" action="/job/{{ job.id }}/" style="display: inline;">
+        <button type="submit" class="btn btn-grey">No</button>
+    </form>
+</div>
+
 {% endblock %}
