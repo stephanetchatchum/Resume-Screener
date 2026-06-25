@@ -185,6 +185,7 @@ def edit_job(request, job_id):
         job.title = request.POST['title']
         job.description = request.POST['description']
         job.save()
+        messages.success(request, 'Edited Successfully')
         return redirect('edit_confirm', job_id=job_id)
     return render(request, 'screener/create_job.html', {'job': job})
 
