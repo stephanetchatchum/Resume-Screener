@@ -186,10 +186,25 @@ def edit_job(request, job_id):
         job.description = request.POST['description']
         job.save()
         messages.success(request, 'Job Edited successfully.')
-        return redirect('job_list')
+        return redirect('edit_confirm', job_id=job_id)
     return render(request, 'screener/create_job.html', {'job': job})
 
-
+def edit_confirm(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    if request.method == 'POST':
+        candidates = job.candidates.all()
+        for candidate in candidates:
+            if candidate.resume_text:
+                ai_response = analyze_candidate(candidate.resume_text, job.description)
+                parsed = parse_ai_response(ai_response)
+                candidate.summary = parsed['summary']
+                candidate.score = parsed['score']
+                candidate.strengths = parsed['strengths']
+                candidate.gaps = parsed['gaps']
+                candidate.save()
+        messages.success(request, 'All candidates have been re-screened.')
+        return redirect('job_detail', job_id=job_id)
+    return render(request, 'screener/edit_confirm.html', {'job': job})
 
 #Gmail intergratrion
 
