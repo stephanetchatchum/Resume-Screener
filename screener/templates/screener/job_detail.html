@@ -6,6 +6,10 @@
 
 <a href="/job/{{ job.id }}/upload/" class="btn btn-green">+ Upload Resume(s)</a>
 <a href="/job/{{ job.id }}/gmail-auth/" class="btn" style="margin-left: 10px;">Scan Gmail</a>
+<form method="post" action="/job/{{ job.id }}/rescore/" style="display: inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn" onclick="return confirm('Re-screen all candidates against the current job description?')">🔄 Re-screen All</button>
+</form>
 <br><br>
 <form method="get">
     <input type="search" name="q" placeholder="Search candidates..." value="{{ query }}" style="width: 300px; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">

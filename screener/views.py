@@ -57,12 +57,14 @@ def analyze_candidate(resume_text, job_description):
                 {resume_text}
                 
                 Consider the seniority level of the role when scoring. If this is an intern or entry-level role, reward potential, relevant coursework, and eagerness. If this is a senior role, reward proven experience and measurable achievements.
-                
+
                 Provide:
                 1. A brief summary of the candidate (3-4 sentences)
                 2. A fit score from 0 to 100
                 3. Key strengths
                 4. Key gaps
+
+                Important: Extract the candidate's full name and email address directly from the resume text even if the formatting is unconventional. If the name or email cannot be found, use "Unknown" for the name and "Not provided" for the email. Never leave these fields blank.
 
                 Format your response as:
                 NAME: [candidate full name]
@@ -207,6 +209,25 @@ def edit_confirm(request, job_id):
         messages.success(request, 'All candidates have been re-screened.')
         return redirect('job_detail', job_id=job_id)
     return render(request, 'screener/edit_confirm.html', {'job': job})
+
+def rescore_candidates(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    if request.method == 'POST':
+        candidates = job.candidates.all()
+        rescreened = 0
+        for candidate in candidates:
+            if candidate.resume_text:
+                ai_response = analyze_candidate(candidate.resume_text, job.description)
+                parsed = parse_ai_response(ai_response)
+                candidate.summary = parsed['summary']
+                candidate.score = parsed['score']
+                candidate.strengths = parsed['strengths']
+                candidate.gaps = parsed['gaps']
+                candidate.save()
+                rescreened += 1
+        messages.success(request, f'{rescreened} candidates re-screened.')
+        return redirect('job_detail', job_id=job_id)
+    return redirect('job_detail', job_id=job_id)
 
 #Gmail intergratrion
 
