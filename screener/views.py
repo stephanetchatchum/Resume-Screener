@@ -12,7 +12,7 @@ import PyPDF2
 import docx
 import io
 import os
-import re
+import re, time
 import hashlib
 from dotenv import load_dotenv
 
@@ -40,7 +40,7 @@ def extract_text_from_docx(file):
 #AI analyzer
 def analyze_candidate(resume_text, job_description):
     response = client.chat.completions.create(
-        model="qwen/qwen3-32b",
+        model="qwen/qwen3.6-27b",
         messages=[
             {
                 "role": "system",
@@ -206,6 +206,7 @@ def edit_confirm(request, job_id):
                 candidate.strengths = parsed['strengths']
                 candidate.gaps = parsed['gaps']
                 candidate.save()
+                time.sleep(1)
         messages.success(request, 'All candidates have been re-screened.')
         return redirect('job_detail', job_id=job_id)
     return render(request, 'screener/edit_confirm.html', {'job': job})
@@ -224,6 +225,7 @@ def rescore_candidates(request, job_id):
                 candidate.strengths = parsed['strengths']
                 candidate.gaps = parsed['gaps']
                 candidate.save()
+                time.sleep(1)
                 rescreened += 1
         messages.success(request, f'{rescreened} candidates re-screened.')
         return redirect('job_detail', job_id=job_id)
