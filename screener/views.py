@@ -40,7 +40,7 @@ def extract_text_from_docx(file):
 #AI analyzer
 def analyze_candidate(resume_text, job_description):
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="qwen/qwen3-32b",
         messages=[
             {
                 "role": "system",
