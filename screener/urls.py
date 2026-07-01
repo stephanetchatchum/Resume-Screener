@@ -14,4 +14,5 @@ urlpatterns = [
     path('job/<int:job_id>/edit/', views.edit_job, name='edit_job'),
     path('job/<int:job_id>/edit-confirm/', views.edit_confirm, name='edit_confirm'),
     path('job/<int:job_id>/rescore/', views.rescore_candidates, name='rescore_candidates'),
+    path('api/screen/', views.screen_candidate, name='screen_candidate'),
 ]

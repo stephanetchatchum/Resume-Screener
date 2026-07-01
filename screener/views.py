@@ -6,6 +6,8 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 import base64
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 import json
 import tempfile
 import PyPDF2
@@ -230,6 +232,21 @@ def rescore_candidates(request, job_id):
         messages.success(request, f'{rescreened} candidates re-screened.')
         return redirect('job_detail', job_id=job_id)
     return redirect('job_detail', job_id=job_id)
+
+@csrf_exempt
+def screen_candidate(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        resume_text = data.get('resume_text', '')
+        job_description = data.get('job_description', '')
+
+        clean_text = anonymize_resume(resume_text)
+        ai_response = analyze_candidate(clean_text, job_description)
+        parsed = parse_ai_response(ai_response)
+
+        return JsonResponse(parsed)
+
 
 #Gmail intergratrion
 
