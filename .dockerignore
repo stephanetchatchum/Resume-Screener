@@ -1,0 +1,8 @@
+myenv
+.env
+credentials.json
+db.sqlite3
+.gitignore
+.git
+*.pyc
+__pycache__/
